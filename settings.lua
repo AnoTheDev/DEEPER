@@ -12,16 +12,14 @@ require "scripts.sprite"
 require "scripts.timer"
 require "scripts.camera"
 require "scripts.button"
-require "src.block"
-require "src.display_pattern"
-require "src.score"
-require "src.floating_text"
 
-WORLD_SIZE = { WIDTH = 540, HEIGHT = 960}
-local desktopWidth, desktopHeight = 540 , 960
-WINDOW_WIDTH, WINDOW_HEIGHT = desktopWidth , desktopHeight
+WORLD_SIZE = { WIDTH =  640, HEIGHT = 360}
+local desktopWidth, desktopHeight = love.graphics.getDimensions()
+WINDOW_WIDTH, WINDOW_HEIGHT = desktopWidth * 0.7, desktopHeight * 0.7
 
 Push:setupScreen(WORLD_SIZE.WIDTH, WORLD_SIZE.HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, { fullscreen = false, resizable = true})
+Push:switchFullscreen()
+Push:switchFullscreen()
 Push._borderColor = Utils.color("000000")
 
 Pushed_Mouse = { x = 0, y = 0, real_x = 0, real_y = 0}

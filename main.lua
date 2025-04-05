@@ -3,7 +3,7 @@ require "settings"
 
 local game
 
-function love.load()
+function love.load() 
     game = Game()
 end
 
@@ -31,29 +31,12 @@ function love.mousereleased(x, y, button)
     love.touchreleased(1, Pushed_Mouse.x, Pushed_Mouse.y, 0, 0, 1)
 end
 
-function love.mousemoved(x, y)
-
-end
-
 function love.keypressed(key)
     game:keypressed(key)
 end
 
 function love.resize(w, h)
     Push:resize(w, h)
-    -- Terminal:print(w..":" ..h)
-end
-
-function love.touchpressed(id, x, y, dx, dy, pressure)
-    game:touchpressed(id, x, y, dx, dy, pressure)
-end
-
-function love.touchmoved(id, x, y)
-    game:touchmoved(id, x, y)
-end
-
-function love.touchreleased(id, x, y)
-    game:touchreleased(id, x, y)
 end
 
 function love.draw()
