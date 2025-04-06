@@ -24,11 +24,10 @@ end
 
 function love.mousepressed(x, y, button)
     game:mousepressed(x, y, button)
-    love.touchpressed(1, Pushed_Mouse.x, Pushed_Mouse.y, 0, 0, 1)
 end
 
 function love.mousereleased(x, y, button)
-    love.touchreleased(1, Pushed_Mouse.x, Pushed_Mouse.y, 0, 0, 1)
+    
 end
 
 function love.keypressed(key)
@@ -41,7 +40,7 @@ end
 
 function love.draw()
     Push:start()
-    love.graphics.setColor(Utils.color("002776"))
+    love.graphics.setColor(Utils.color("11070a"))
     love.graphics.rectangle("fill", 0, 0, WORLD_SIZE.WIDTH, WORLD_SIZE.HEIGHT)
     love.graphics.setColor(Utils.color())
     game:draw()
