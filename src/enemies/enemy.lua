@@ -8,7 +8,7 @@ function Enemy:new(child , x , y , fsm , animator , health , height ,  box_value
     self.brain:change_state(self.idle)
     self.height = height or 32
     self.attack_timer = Timer()
-    self.attack_delay = 10
+    self.attack_delay = 2
 
     self.player_data = {}
     
@@ -24,8 +24,6 @@ function Enemy:new(child , x , y , fsm , animator , health , height ,  box_value
     Event.dispatch("get_player" , self)
 
     self.flash_timer = Timer()
-
-    self.animator:play("idle-down")
 end
 
 function Enemy:limits()
@@ -45,6 +43,7 @@ end
 function Enemy:update(dt)
     self.brain:update(dt)
     self.hitbox:update(dt)
+    self.animator:update(dt)
     if self.attack_phase == 1 then
         if self.hitbox.health <= self.health_thres then
             Event.dispatch("change_phase" , 2)
@@ -66,8 +65,6 @@ function Enemy:idle(dt)
         self.target_location.y = Lume.random(0 , 360 - 64)
     end)
     local direction = self.direction.x == "right" and 1 or -1
-    self.animator.scale[1] = Utils.lerp(self.animator.scale[1] , 2 , dt * 20)
-    self.animator.scale[2] = Utils.lerp(self.animator.scale[2] , 2 , dt * 20)
 end
 
 function Enemy:take_damage(damage_amount)

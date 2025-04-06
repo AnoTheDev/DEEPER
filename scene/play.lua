@@ -19,6 +19,11 @@ function Play:register_events()
         Event.dispatch("remove_hitbox" , enemy.hitbox)
         Utils.remove_from_list(self.sortable_objects , enemy)
         Utils.remove_from_list(self.enemies, enemy)
+        if #self.enemies <= 0 then
+            DEPTH = DEPTH + 200
+            self.depth_text:update_Depth(DEPTH)
+            self:create_wave()
+        end
     end)
 
     Event.on("add_enemy", function(enemy)
@@ -60,36 +65,142 @@ function Play:new()
     self.smoke:setParticleLifetime(1, 3)      -- Each smoke particle lives between 2 and 5 seconds
     self.smoke:setEmissionRate(150)
     self.smoke:setSizeVariation(0)
-    -- self.smoke:setLinearAcceleration(-5, -5, 5, 5)  -- Random slight drift
     self.smoke:setEmissionArea("borderrectangle", 472/2 + 16, 360/2 + 16)
-    -- self.smoke:setAreaSpread("uniform", 10, 10)  -- Spread across the arena
-    self.smoke:setColors(150, 150, 150, 150, 150, 150, 150, 100) -- Fade out over time
-    self.smoke:setColors(100, 100, 100, 100, 100, 100, 100, 100)
     self.smoke:setSizes(1.0, 2 , 1.5)
     self.smoke:setSpin(-2, 2) 
     
     self.floor = Sprite({
-        image = "assets/images/floors/"..tostring(Lume.randomchoice(love.filesystem.getDirectoryItems("assets/images/floors"))),
+        -- image = "assets/images/floors/"..tostring(Lume.randomchoice(love.filesystem.getDirectoryItems("assets/images/floors"))),
+        image = "assets/images/floors/floor7.png",
         origin = {0, 0},
         center_origin = false,
     })
 
+    self.depth_text = Depth(640 , 360)
+
+    self.font = love.graphics.newFont("assets/fonts/RubikMonoOne-Regular.ttf", 24)
+    self.crosshair = Sprite({
+        image = "assets/images/crosshair.png",
+        origin = {8 , 8},
+        offset = {-12 , -12},
+        center_origin = true,
+    })
+
+    self.spawnable_enemies = {
+        [1200] = {
+            {type = "pickaxe_enemy", chance = 0.4},
+            {type = "fireball_enemy", chance = 0.4},
+            {type = "bomb_enemy", chance = 0.2},
+        },
+
+        [1000] = {
+            {type = "pickaxe_enemy", chance = 0.4},
+            {type = "fireball_enemy", chance = 0.4},
+            {type = "tnt_enemy", chance = 0.2},
+        },
+
+        [800] = {
+            {type = "pickaxe_enemy", chance = 0.4},
+            {type = "spark_enemy", chance = 0.4},
+            {type = "tnt_enemy", chance = 0.2},
+        },
+
+        [600] = {
+            {type = "spark_enemy", chance = 0.4},
+            {type = "shovel_enemy", chance = 0.4},
+            {type = "tnt_enemy", chance = 0.2}
+        },
+
+        [400] = {
+            {type = "shovel_enemy" ,chance = 0.5},
+            {type = "spark_enemy", chance = 0.5,},
+
+        },
+
+        [200] = {
+            {type = "shovel_enemy", chance = 1.0}
+        },
+
+        [0] = {
+            {type = "dummy_enemy", chance = 1.0}
+        },
+    }
+
+    self.enemy_index = {
+        ["dummy_enemy"] = Dummy,
+        ["pickaxe_enemy"] = Dummy,
+        ["fireball_enemy"] = Dummy,
+        ["bomb_enemy"] = Dummy,
+        ["tnt_enemy"] = Dummy,
+        ["spark_enemy"] = Dummy,
+        ["shovel_enemy"] = Dummy,
+    }
+
     self.bullets = {}
+    self.wave = {}
     self.enemies = {}
     self.hitboxes = {}
     self.hurtboxes = {}
+    self.GUI = {}
     self.sortable_objects = {self.player}
     
     self:register_events()
-    Event.dispatch("retrieve_boxes")
-    Event.dispatch("add_enemy" , Dummy(24 , 24))
-    Event.dispatch("add_enemy" , Dummy(472 - 64 , 24))
-    Event.dispatch("add_enemy" , Dummy(236 , 180))
+
+    self:create_wave()
 end
 
 function Play:load()
     
 end
+
+function Play:create_wave()
+    self.wave = {}
+    local keys = {}
+    for depth, value in pairs(self.spawnable_enemies) do
+       table.insert(keys , depth) 
+    end
+    table.sort(keys , function (a , b)
+        return a > b
+    end)
+
+    for _, value in ipairs(keys) do
+        if DEPTH >= value then
+            Log(value)
+            for i = 1, 6, 1 do
+                local spawns = self.spawnable_enemies[value]
+                table.insert(self.wave , self:chooseEnemyToSpawn(self.spawnable_enemies[value]))
+            end
+
+            for index, value in ipairs(self.wave) do
+                Log(value)
+            end
+            break
+        end
+    end
+
+    for index, value in ipairs(self.wave) do
+        local enemy = self.enemy_index[value](Lume.random(0 , 472 - 64) , Lume.random(0 , 360 - 64))
+        Event.dispatch("add_enemy" , enemy)
+    end
+end
+
+function Play:chooseEnemyToSpawn(enemyList)
+    local total = 0
+    for _, e in ipairs(enemyList) do
+        total = total + e.chance
+    end
+
+
+    local r = math.random() * total
+    local sum = 0
+    for _, e in ipairs(enemyList) do
+        sum = sum + e.chance
+        if r <= sum then
+            return e.type
+        end
+    end
+end
+
 
 function Play:update(dt)
     self.smoke:update(dt)
@@ -126,6 +237,7 @@ end
 function Play:play(dt)
     self.camera:update(dt)
     self.player:update(dt)
+    self.depth_text:update(dt)
 
     for index, enemy in ipairs(self.enemies) do
         enemy:update(dt)
@@ -189,6 +301,12 @@ function Play:draw_fight()
     end
 end
 
+function Play:draw_gui()
+    love.graphics.setFont(self.font)
+    self.depth_text:draw()
+    self.crosshair:draw(Pushed_Mouse.x , Pushed_Mouse.y)
+end
+
 function Play:draw()
     love.graphics.push()
         love.graphics.scale(self.camera.zoom)
@@ -197,4 +315,7 @@ function Play:draw()
         self:draw_fight()
         love.graphics.draw(self.smoke, 236, 180)
     love.graphics.pop()
+
+    self:draw_gui()
 end
+

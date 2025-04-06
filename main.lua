@@ -4,6 +4,7 @@ require "settings"
 local game
 
 function love.load() 
+    math.randomseed(os.time())
     game = Game()
 end
 
