@@ -6,15 +6,20 @@ Event = require "libs.event"
 require "libs.console"
 require "game"
 Terminal = Console({ size = 8 })
+DEBUGGING = false
 require "scripts.FSM"
 require "scripts.animation"
 require "scripts.sprite"
 require "scripts.timer"
 require "scripts.camera"
 require "scripts.button"
+require "scripts.hurtbox"
+require "scripts.hitbox"
 require "scripts.scene_manager"
 require "scene.play"
 require "src.player.player"
+require "src.enemies.enemy"
+require "src.enemies.dummy.dummy"
 
 WORLD_SIZE = {WIDTH =  640, HEIGHT = 360}
 local desktopWidth, desktopHeight = love.graphics.getDimensions()

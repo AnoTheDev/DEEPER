@@ -1,8 +1,5 @@
 Hurtbox = Object:extend()
 
-require "src.scripts.FSM"
-require "src.scripts.timer"
-
 function Hurtbox:new(parent, x, y, width, height, event_name, offset_x, offset_y, damage, cumulative, angle , pivot_x , pivot_y)
     self.parent = parent
     self.x, self.y = x or 0, y or 0
@@ -14,7 +11,7 @@ function Hurtbox:new(parent, x, y, width, height, event_name, offset_x, offset_y
     self.damage_timer = Timer()
     self.damage = damage or 10
     self.active = true
-    self.debug = false
+    self.debug = DEBUGGING
     self.cumulative = cumulative or false
     self.already_collided = {}
 

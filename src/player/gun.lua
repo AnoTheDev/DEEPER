@@ -1,3 +1,5 @@
+require "src.player.bullet"
+
 Gun = Object:extend()
 
 function Gun:new(parent)
@@ -17,17 +19,12 @@ function Gun:new(parent)
     self.muzzle_length = 25
 
     self.shot_timer = Timer()
-    self.shot_delay = 0.18
+    self.shot_delay = SHOT_DELAY
 
     self.charging = false
     self.charge_amount = 0
     self.charge_max = 5
 
-    -- self.sounds = {
-    --     charge = love.audio.newSource("assets/sounds/charge.wav", "static"),
-    --     reject = love.audio.newSource("assets/sounds/reject.wav", "static")
-    -- }
-    -- self.sounds.charge:setLooping(true)
     self.spin_amount = 0
     self.max_spin = 30
 
@@ -73,7 +70,7 @@ function Gun:shoot()
     if self.shot_timer.active then return end
 
     -- Create a bullet
-    -- local bullet = Bullet(self.gun_base.x, self.gun_base.y, self.angle, 30)
+    local bullet = Bullet(self.gun_base.x, self.gun_base.y, self.angle, BULLET_SPEED)
 
     -- Apply recoil
     local recoil_range = math.rad(Lume.random(15, 60))
@@ -85,7 +82,7 @@ function Gun:shoot()
 
     Event.dispatch("spin_engine", 20)
     Event.dispatch("shot" , 1.5 , 10)
-    -- Event.dispatch("add_bullet" , bullet)
+    Event.dispatch("add_bullet" , bullet)
 end
 
 function Gun:mousepressed(x , y , button)

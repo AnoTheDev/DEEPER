@@ -1,8 +1,5 @@
 Hitbox = Object:extend()
 
-require "src.scripts.FSM"
-require "src.scripts.timer"
-
 function Hitbox:new(parent, x, y, width, height, offset_x, offset_y, event, health)
     self.parent = parent
     self.x = x or 0
@@ -15,7 +12,7 @@ function Hitbox:new(parent, x, y, width, height, offset_x, offset_y, event, heal
     self.active = true
     self.cool_time = 0.2
     self.health = health or 100
-    self.debug = false
+    self.debug = DEBUGGING
     self.angle = 0 -- Add rotation for consistency with Hurtbox
 
     Event.on("retrieve_boxes", function()

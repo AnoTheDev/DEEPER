@@ -56,9 +56,8 @@ end
 function Camera:follow(dt)
     if not self.target then return end
 
-    local target_x = self.target.x - (WORLD_SIZE.WIDTH / 2) / self.zoom + self.offset.x
-    local target_y = self.target.y - (WORLD_SIZE.HEIGHT / 2) / self.zoom + self.offset.y
-
+    local target_x = (self.target.x - (WORLD_SIZE.WIDTH / 2) + self.offset.x) / self.zoom 
+    local target_y = (self.target.y - (WORLD_SIZE.HEIGHT / 2) + self.offset.y) / self.zoom 
     if self.shaking == false then
         self.y = Utils.lerp(self.y, target_y, dt * self.follow_speed * self.zoom)
         self.x = Utils.lerp(self.x, target_x, dt * self.follow_speed * self.zoom)

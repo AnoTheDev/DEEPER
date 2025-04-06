@@ -1,14 +1,17 @@
+require "src.player.globals"
 require "src.player.gun"
+
 
 Player = Object:extend()
 
 function Player:new(x , y)
     self.x = x or 160
     self.y = y or 90
+    self.height = 24
     self.velocity = {x = 100, y = 0}
     self.movement_direction = {x = 1, y = 1}
     self.direction = "down"
-    self.speed = 170
+    MOVE_SPEED = 170
     self.limits = {left = 0, right = 472 - 24, top = 0, bottom = 360-24}
     self.brain = FSM(self, self.movement)
     self.animator = Animation(self)
@@ -39,22 +42,22 @@ function Player:movement(dt)
     self.anim_rot = 0
 
     if love.keyboard.isDown("a") then
-        self.velocity.x, self.anim_rot, self.movement_direction.x = -self.speed, math.rad(-12), -1
+        self.velocity.x, self.anim_rot, self.movement_direction.x = -MOVE_SPEED, math.rad(-12), -1
     elseif love.keyboard.isDown("d") then
-        self.velocity.x, self.anim_rot, self.movement_direction.x = self.speed, math.rad(12), 1
+        self.velocity.x, self.anim_rot, self.movement_direction.x = MOVE_SPEED, math.rad(12), 1
     end
 
     if love.keyboard.isDown("w") then
-        self.velocity.y, self.movement_direction.y = -self.speed, -1
+        self.velocity.y, self.movement_direction.y = -MOVE_SPEED, -1
     elseif love.keyboard.isDown("s") then
-        self.velocity.y, self.movement_direction.y = self.speed, 1
+        self.velocity.y, self.movement_direction.y = MOVE_SPEED, 1
     end
 
     -- Normalize velocity
     local length = math.sqrt(self.velocity.x^2 + self.velocity.y^2)
     if length > 0 then
-        self.velocity.x = (self.velocity.x / length) * self.speed
-        self.velocity.y = (self.velocity.y / length) * self.speed
+        self.velocity.x = (self.velocity.x / length) * MOVE_SPEED
+        self.velocity.y = (self.velocity.y / length) * MOVE_SPEED
     end
 
     -- Update position and check limits
@@ -65,11 +68,6 @@ function Player:movement(dt)
     -- Switch animation state based on movement
     local state = (self.velocity.x == 0 and self.velocity.y == 0) and "idle" or "run"
     self.animator:play(state .. "-" .. self.direction, true, (self.velocity.x == 0 and self.velocity.y == 0) and 0.5 or 0.1)
-
-    -- -- Handle dodge
-    -- if (love.keyboard.isDown("space") or love.keyboard.isDown("lshift")) and not self.dodge_cooldown.active and (self.movement_direction.x ~= 0 or self.movement_direction.y ~= 0) then
-    --     self.brain:change_state(self.dodge)
-    -- end
 end
 
 function Player:mouse_control(dt)
