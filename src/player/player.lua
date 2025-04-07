@@ -20,6 +20,7 @@ function Player:new(x , y)
     self.animator:add("assets/images/player/idle-down", "idle-down", {12, 24}, true)
     self.animator:add("assets/images/player/idle-up", "idle-up", {12, 24}, true)
     self.animator:play("idle-down", true, 0.2)
+    self.anim_rot = 0
     self.gun = Gun(self)
 end
 
@@ -27,6 +28,7 @@ function Player:update(dt)
     self.gun:update(dt)
     self.brain:update(dt)
     self.animator:update(dt)
+    self.animator.rot = self.anim_rot
     self:mouse_control(dt)
 end
 
@@ -42,9 +44,9 @@ function Player:movement(dt)
     self.anim_rot = 0
 
     if love.keyboard.isDown("a") then
-        self.velocity.x, self.anim_rot, self.movement_direction.x = -MOVE_SPEED, math.rad(-12), -1
+        self.velocity.x, self.anim_rot, self.movement_direction.x = -MOVE_SPEED, math.rad(-6), -1
     elseif love.keyboard.isDown("d") then
-        self.velocity.x, self.anim_rot, self.movement_direction.x = MOVE_SPEED, math.rad(12), 1
+        self.velocity.x, self.anim_rot, self.movement_direction.x = MOVE_SPEED, math.rad(6), 1
     end
 
     if love.keyboard.isDown("w") then

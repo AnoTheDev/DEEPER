@@ -21,6 +21,7 @@ require "src.player.player"
 require "src.enemies.enemy"
 require "src.enemies.dummy.dummy"
 require "src.depth"
+require "src.Gui.upgrade"
 
 WORLD_SIZE = {WIDTH =  640, HEIGHT = 360}
 local desktopWidth, desktopHeight = love.graphics.getDimensions()

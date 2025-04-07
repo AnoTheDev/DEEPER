@@ -19,7 +19,6 @@ function Gun:new(parent)
     self.muzzle_length = 25
 
     self.shot_timer = Timer()
-    self.shot_delay = SHOT_DELAY
 
     self.charging = false
     self.charge_amount = 0
@@ -78,7 +77,7 @@ function Gun:shoot()
     self.recoil_timer:start(0.1, function() self.recoil_angle = 0 end)
 
     -- Start shot timer
-    self.shot_timer:start(self.shot_delay)
+    self.shot_timer:start(SHOT_DELAY)
 
     Event.dispatch("spin_engine", 20)
     Event.dispatch("shot" , 1.5 , 10)

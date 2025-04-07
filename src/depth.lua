@@ -31,6 +31,5 @@ function Depth:draw()
     love.graphics.setFont(self.font)
     local text_width = self.font:getWidth(self.value.."M")
     local text_height = self.font:getHeight()
-    love.graphics.print(self.value , 0, 0)
     love.graphics.print(self.value.."M" , self.x - (8 + self.font:getWidth(self.value.."M")) , self.y - (8 + self.font:getHeight(self.font)) , 0 , self.scale , self.scale)
 end
