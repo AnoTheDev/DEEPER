@@ -20,6 +20,7 @@ require "scene.play"
 require "src.player.player"
 require "src.enemies.enemy"
 require "src.enemies.dummy.dummy"
+require "src.enemies.dummy.pickaxe"
 require "src.depth"
 require "src.Gui.upgrade"
 

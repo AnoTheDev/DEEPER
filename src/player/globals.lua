@@ -10,7 +10,7 @@ Event.on("buff_move_speed" , function (speed)
 end)
 
 Event.on("buff_bullet_speed" , function (speed)
-    BULLET_SPEED = BULLET_SPEED + speed
+    BULLET_SPEED = math.max(5 , BULLET_SPEED + speed)
     print(BULLET_SPEED)
 end)
 
@@ -22,5 +22,4 @@ end)
 Event.on("buff_shot_delay" , function (delay)
     SHOT_DELAY = SHOT_DELAY + delay
     print(SHOT_DELAY)
-    Log("AAAAAAAAAAAAAAS")
 end)

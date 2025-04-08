@@ -8,12 +8,15 @@ function Upgrade:new(x , y)
     self.width = 111
     self.height = 177
     self.buff = nil
+    self.click_sound = love.audio.newSource("assets/sounds/buff.wav" , "static")
     self.buff_des = ""
+    self.rarity = "common"
     self.font = love.graphics.newFont("assets/fonts/RubikMonoOne-Regular.ttf" , 10)
 end
 
-function Upgrade:change_buff(buff , amount , des , call)
+function Upgrade:change_buff(buff , amount , des , rarity , call)
     self.buff_des = des.. ": ".. amount
+    self.rarity = rarity
     self.buff = function ()
         Event.dispatch(buff , amount)
         if call then
@@ -25,16 +28,6 @@ end
 function Upgrade:update(dt)
     local mx, my = Pushed_Mouse.real_x , Pushed_Mouse.real_y
     self.isHovered = self:isMouseOver(mx, my)
-    -- if self.isHovered == false then
-    --     self.sounded = false
-    -- end
-
-    -- if self.isHovered == true and self.sounded == false then
-    --     self.hover_sound:stop()
-    --     self.hover_sound:setPitch(Lume.random(0.9 , 1.1))
-    --     self.hover_sound:play()
-    --     self.sounded = true
-    -- end
 end
 
 function Upgrade:isMouseOver(mx, my)
@@ -49,18 +42,26 @@ function Upgrade:mousepressed(x, y, button)
     if button == 1 and self:isMouseOver(Pushed_Mouse.real_x, Pushed_Mouse.real_y) then
         self.buff()
         Event.dispatch("new_wave")
+        self.click_sound:play()
     end
 end
 
 function Upgrade:draw()
     love.graphics.setFont(self.font)
     if self.isHovered then
-        love.graphics.setColor(Utils.color("ed1515"))
+        love.graphics.setColor(Utils.color("edfcff"))
     else
-        love.graphics.setColor(Utils.color("5614ba"))
+        if self.rarity == "common" then
+            love.graphics.setColor(Utils.color("7ab012"))
+        elseif self.rarity == "rare" then
+            love.graphics.setColor(Utils.color("5614ba"))
+        elseif self.rarity == "dive" then
+            love.graphics.setColor(Utils.color("f05203"))
+        end
     end
     love.graphics.rectangle("fill" , self.x , self.y , 111 * self.scale, 177 * self.scale)
     love.graphics.print(self.buff_des , self.x - self.font:getWidth(self.buff_des)/2 + 64 , self.y - 32)
+    love.graphics.print(self.rarity , self.x - self.font:getWidth(self.rarity)/2 + 56 , self.y + 182)
     -- love.graphics.setColor(Utils.color("11070a"))
     -- love.graphics.rectangle("fill" , self.x , self.y , 109 , 175)
     love.graphics.setColor(Utils.color())

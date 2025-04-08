@@ -56,7 +56,7 @@ function Play:register_events()
         self.floor_index = Utils.wrap(self.floor_index + 1 , 1 , 7)
         self.player.x = 900
         self.camera:lock_on()
-        DEPTH = DEPTH + 200
+        DEPTH = DEPTH + 100
         self.depth_text:update_Depth(DEPTH)
         self:create_wave()
         self.floor = Sprite({
@@ -65,15 +65,11 @@ function Play:register_events()
             center_origin = false,
         })
         
-        for _, bullet in ipairs(self.bullets) do
-            Event.dispatch("remove_bullet" , bullet)
-        end
-        
         local upgrades_copy = self.upgrades
         for index, value in pairs(self.upgrade_cards) do
             if index == 3 then
                 local selected_buff = Lume.randomchoice(upgrades_copy["dive"])
-                value:change_buff(selected_buff.buff , selected_buff.amount , selected_buff.des , function ()
+                value:change_buff(selected_buff.buff , selected_buff.amount , selected_buff.des, "dive" , function ()
                     DEPTH = DEPTH + 200
                     self.depth_text:update_Depth(DEPTH)
                 end)
@@ -82,7 +78,7 @@ function Play:register_events()
 
             local rarity = Lume.randomchoice({"common", "rare"})
             local selected_buff = Lume.randomchoice(upgrades_copy[rarity])
-            value:change_buff(selected_buff.buff , selected_buff.amount , selected_buff.des)
+            value:change_buff(selected_buff.buff , selected_buff.amount , selected_buff.des , rarity)
         end
 
         self.state:change_state(self.starting_wave)
@@ -140,17 +136,18 @@ function Play:new()
 
     self.upgrades = {
         ["common"] = {
-        {buff  = "buff_shot_delay" , amount = -0.1, des = "-shot delay"},
+        {buff  = "buff_shot_delay" , amount = -0.02, des = "-shot delay"},
         {buff  = "buff_move_speed" , amount = 100, des = "+move speed"},
         },
 
         ["rare"] = {
             {buff  = "buff_bullet_speed" , amount = 10, des = "+bullet speed"},
-            {buff  = "buff_shot_delay" , amount = -0.02, des = "-shot delay"},
+            {buff  = "buff_shot_delay" , amount = -0.03, des = "-shot delay"},
         },
 
         ["dive"] = {
             {buff  = "buff_shot_delay" , amount = -0.1, des = "-shot delay"},
+            {buff  = "buff_bullet_speed" , amount = -10, des = "-bullet speed"},
         }
     }
 
@@ -199,13 +196,13 @@ function Play:new()
     -- self.song:play()
 
     self.enemy_index = {
-        ["dummy_enemy"] = Dummy,
-        ["pickaxe_enemy"] = Dummy,
-        ["fireball_enemy"] = Dummy,
-        ["bomb_enemy"] = Dummy,
-        ["tnt_enemy"] = Dummy,
-        ["spark_enemy"] = Dummy,
-        ["shovel_enemy"] = Dummy,
+        ["dummy_enemy"] = Pickaxe,
+        ["pickaxe_enemy"] = Pickaxe,
+        ["fireball_enemy"] = Pickaxe,
+        ["bomb_enemy"] = Pickaxe,
+        ["tnt_enemy"] = Pickaxe,
+        ["spark_enemy"] = Pickaxe,
+        ["shovel_enemy"] = Pickaxe,
     }
 
     self.bullets = {}
@@ -273,7 +270,6 @@ function Play:chooseEnemyToSpawn(enemyList)
     end
 end
 
-
 function Play:update(dt)
     self.smoke:update(dt)
     self.state:update(dt)
@@ -323,9 +319,6 @@ end
 function Play:handle_collisions()
     for i, hitbox in ipairs(self.hitboxes) do
         for j, hurtbox in ipairs(self.hurtboxes) do
-            -- if hitbox.parent:is(Player) and hurtbox.parent:is(Enemy_Bullet) then
-            --     hurtbox:overlaped(hitbox)
-            -- end
             if hitbox.parent:is(Enemy) and (hurtbox.parent:is(Bullet) or hurtbox.parent:is(Bullet)) then
                 hurtbox:overlaped(hitbox)
             end
@@ -333,27 +326,26 @@ function Play:handle_collisions()
     end
 end
 
-function Play:ending_wave(dt)
+function Play:transition(dt)
     self.camera:update(dt)
-    self.tilt = Utils.move_to(self.tilt , -0.2 , dt/2)
-    self.player.x = self.player.x - dt * 300
-    Event.dispatch("cam_shake" , 6 , 0.2)
-    self.player.animator.rot =  self.player.animator.rot - 5 * dt
+    self.player.x = self.player.x - dt * 400
+    Event.dispatch("cam_shake" , 5 , 0.2)
+    self.player.animator.rot =  self.player.animator.rot - 10 * dt
+end
+
+function Play:ending_wave(dt)
+    self:transition(dt)
     if self.player.x <= -400 then
         self.state:change_state(self.upgrading)
     end
 end
 
 function Play:starting_wave(dt)
-    self.camera:update(dt)
-    self.tilt = Utils.move_to(self.tilt , -0.2 , dt/2)
-    self.player.x = self.player.x - dt * 300
-    Event.dispatch("cam_shake" , 6 , 0.2)
-    self.player.animator.rot =  self.player.animator.rot - 5 * dt
+    self:transition(dt)
     for index, card in ipairs(self.upgrade_cards) do
         card.y = Utils.lerp(card.y , 470 , dt * 2)
     end
-    if self.player.x <= 360 + 12 then
+    if self.player.x <= 200 + 12 then
         self.player.anim_rot = 0
         self.state:change_state(self.play)
     end
@@ -366,10 +358,6 @@ function Play:upgrading(dt)
 
     for index, card in ipairs(self.upgrade_cards) do
         card:update(dt)
-    end
-
-    if love.keyboard.isDown("space") then
-        Event.dispatch("new_wave")
     end
 end
 
@@ -436,8 +424,8 @@ function Play:draw()
         love.graphics.rotate(self.tilt)
         self:draw_fight()
         love.graphics.setColor(Utils.color("11070a"))
-        love.graphics.rectangle("fill", -450, -24, 450, 360)
-        love.graphics.rectangle("fill", 472, -24, 490, 360)
+        love.graphics.rectangle("fill", -450, -24, 400, 360)
+        love.graphics.rectangle("fill", 472, -24, 472, 360)
         love.graphics.setColor(Utils.color())
         love.graphics.draw(self.smoke, 236, 180)
     love.graphics.pop()
